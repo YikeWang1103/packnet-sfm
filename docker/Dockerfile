@@ -85,8 +85,10 @@ RUN pip install future typing numpy pandas matplotlib jupyter h5py \
     mpi4py onnx onnxruntime pycuda yacs cython==0.29.10
 
 # Install PyTorch
-RUN pip install torch==${PYTORCH_VERSION} \
-    torchvision==${TORCHVISION_VERSION} && ldconfig
+# RUN pip install torch==${PYTORCH_VERSION} \
+#     torchvision==${TORCHVISION_VERSION} && ldconfig
+COPY third_party/torch-1.12.1+cu113-cp38-cp38-linux_x86_64.whl ./
+RUN pip install ./torch-1.12.1+cu113-cp38-cp38-linux_x86_64.whl
 
 # Install apex
 RUN mkdir /workspace

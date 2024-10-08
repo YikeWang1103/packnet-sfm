@@ -8,7 +8,8 @@ SHMSIZE ?= 444G
 WANDB_MODE ?= run
 DOCKER_OPTS := \
 			--name ${PROJECT} \
-			--rm -it \
+			--gpus all \
+			-it \
 			--shm-size=${SHMSIZE} \
 			-e AWS_DEFAULT_REGION \
 			-e AWS_ACCESS_KEY_ID \
@@ -66,17 +67,23 @@ docker-build:
 		-f docker/Dockerfile \
 		-t ${DOCKER_IMAGE} .
 
-docker-start-interactive: docker-build
-	nvidia-docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} bash
+docker-start-interactive: 
+	docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} bash
 
-docker-start-jupyter: docker-build
-	nvidia-docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} \
+docker-start-jupyter:
+	docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} \
 		bash -c "jupyter notebook --port=8888 -ip=0.0.0.0 --allow-root --no-browser"
 
-docker-run: docker-build
-	nvidia-docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} \
+docker-run: 
+	docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} \
 		bash -c "${COMMAND}"
 
-docker-run-mpi: docker-build
-	nvidia-docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} \
+docker-run-mpi: 
+	docker run ${DOCKER_OPTS} ${DOCKER_IMAGE} \
 		bash -c "${MPI_CMD} ${COMMAND}"
+
+docker-enter-container:
+	docker exec -it $(PROJECT) /bin/bash
+
+docker-start-container:
+	docker container start $(PROJECT)
